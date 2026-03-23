@@ -1,0 +1,587 @@
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE Xuat      CASCADE CONSTRAINTS'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE PXuat     CASCADE CONSTRAINTS'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE Nhap      CASCADE CONSTRAINTS'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE PNhap     CASCADE CONSTRAINTS'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE SanPham   CASCADE CONSTRAINTS'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE HangSX    CASCADE CONSTRAINTS'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE NhanVien  CASCADE CONSTRAINTS'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+
+CREATE TABLE HangSX (
+    MaHangSX  VARCHAR2(10)  PRIMARY KEY,
+    TenHang   VARCHAR2(100) NOT NULL,
+    DiaChi    VARCHAR2(200),
+    SoDT      VARCHAR2(20),
+    Email     VARCHAR2(100)
+);
+
+CREATE TABLE SanPham (
+    MaSP      VARCHAR2(10) PRIMARY KEY,
+    MaHangSX  VARCHAR2(10) REFERENCES HangSX(MaHangSX),
+    TenSP     VARCHAR2(150) NOT NULL,
+    SoLuong   NUMBER(10)    DEFAULT 0,
+    MauSac    VARCHAR2(50),
+    GiaBan    NUMBER(15,2),
+    DonViTinh VARCHAR2(30),
+    MoTa      VARCHAR2(500)
+);
+
+CREATE TABLE NhanVien (
+    MaNV     VARCHAR2(10)  PRIMARY KEY,
+    TenNV    VARCHAR2(100) NOT NULL,
+    GioiTinh VARCHAR2(10),
+    DiaChi   VARCHAR2(200),
+    SoDT     VARCHAR2(20),
+    Email    VARCHAR2(100),
+    TenPhong VARCHAR2(100)
+);
+
+CREATE TABLE PNhap (
+    SoHDN    VARCHAR2(15) PRIMARY KEY,
+    NgayNhap DATE         DEFAULT SYSDATE,
+    MaNV     VARCHAR2(10) REFERENCES NhanVien(MaNV)
+);
+
+CREATE TABLE Nhap (
+    SoHDN    VARCHAR2(15) REFERENCES PNhap(SoHDN),
+    MaSP     VARCHAR2(10) REFERENCES SanPham(MaSP),
+    SoLuongN NUMBER(10)   NOT NULL,
+    DonGiaN  NUMBER(15,2) NOT NULL,
+    CONSTRAINT PK_Nhap PRIMARY KEY (SoHDN, MaSP)
+);
+
+CREATE TABLE PXuat (
+    SoHDX    VARCHAR2(15) PRIMARY KEY,
+    NgayXuat DATE         DEFAULT SYSDATE,
+    MaNV     VARCHAR2(10) REFERENCES NhanVien(MaNV)
+);
+
+CREATE TABLE Xuat (
+    SoHDX    VARCHAR2(15) REFERENCES PXuat(SoHDX),
+    MaSP     VARCHAR2(10) REFERENCES SanPham(MaSP),
+    SoLuongX NUMBER(10)   NOT NULL,
+    CONSTRAINT PK_Xuat PRIMARY KEY (SoHDX, MaSP)
+);
+
+INSERT INTO HangSX VALUES ('HSX001', 'Samsung Electronics', 'Seoul, Han Quoc',   '0281234567', 'contact@samsung.com');
+INSERT INTO HangSX VALUES ('HSX002', 'Apple Inc.',          'Cupertino, My',     '0289876543', 'contact@apple.com');
+INSERT INTO HangSX VALUES ('HSX003', 'Xiaomi Corporation',  'Bac Kinh, TQ',      '0283456789', 'contact@xiaomi.com');
+INSERT INTO HangSX VALUES ('HSX004', 'OPPO Electronics',    'Dong Quan, TQ',     '0284567890', 'contact@oppo.com');
+INSERT INTO HangSX VALUES ('HSX005', 'Google LLC',          'Mountain View, My', '0285678901', 'contact@google.com');
+
+INSERT INTO SanPham VALUES ('SP01', 'HSX001', 'Samsung Galaxy S24 Ultra', 0, 'Titan Black',       33990000, 'Cai', 'Man hinh 6.8in, RAM 12GB, Snapdragon 8 Gen 3');
+INSERT INTO SanPham VALUES ('SP02', 'HSX002', 'iPhone 15 Pro Max',        0, 'Natural Titanium',  34990000, 'Cai', 'Chip A17 Pro, camera 48MP, cong USB-C');
+INSERT INTO SanPham VALUES ('SP03', 'HSX003', 'Xiaomi 14 Ultra',          0, 'White',             26990000, 'Cai', 'Camera Leica, Snapdragon 8 Gen 3, 90W charging');
+INSERT INTO SanPham VALUES ('SP04', 'HSX004', 'OPPO Find X7 Pro',         0, 'Midnight Black',    22990000, 'Cai', 'Hasselblad camera, Dimensity 9300, 100W charging');
+INSERT INTO SanPham VALUES ('SP05', 'HSX005', 'Google Pixel 8 Pro',       0, 'Bay Blue',          22490000, 'Cai', 'Chip Tensor G3, AI camera, 7 nam cap nhat');
+INSERT INTO SanPham VALUES ('SP06', 'HSX001', 'Samsung Galaxy A55',       0, 'Awesome Iceblue',  10990000, 'Cai', 'AMOLED 120Hz, IP67, OIS camera');
+INSERT INTO SanPham VALUES ('SP07', 'HSX002', 'iPhone 15',                0, 'Pink',              22990000, 'Cai', 'Dynamic Island, chip A16, camera 48MP');
+INSERT INTO SanPham VALUES ('SP08', 'HSX003', 'Redmi Note 13 Pro+',       0, 'Aurora Purple',      9490000, 'Cai', '200MP camera, 120W HyperCharge, AMOLED 120Hz');
+
+INSERT INTO NhanVien VALUES ('NV001', 'Nguyen Van An',  'Nam', 'TP.HCM',  '0901111111', 'an@dtshop.com',    'Kho');
+INSERT INTO NhanVien VALUES ('NV002', 'Tran Thi Binh',  'Nu',  'Ha Noi',  '0902222222', 'binh@dtshop.com',  'Ban hang');
+INSERT INTO NhanVien VALUES ('NV003', 'Le Minh Cuong',  'Nam', 'Da Nang', '0903333333', 'cuong@dtshop.com', 'Kho');
+
+INSERT INTO PNhap VALUES ('HDN001', DATE '2024-01-10', 'NV001');
+INSERT INTO PNhap VALUES ('HDN002', DATE '2024-01-15', 'NV001');
+
+INSERT INTO PXuat VALUES ('HDX001', DATE '2024-01-20', 'NV002');
+INSERT INTO PXuat VALUES ('HDX002', DATE '2024-01-25', 'NV002');
+
+COMMIT;
+
+CREATE OR REPLACE TRIGGER trg_Nhap
+BEFORE INSERT ON Nhap
+FOR EACH ROW
+DECLARE
+    v_dem NUMBER := 0;
+BEGIN
+    SELECT COUNT(*) INTO v_dem
+    FROM   SanPham
+    WHERE  MaSP = :NEW.MaSP;
+
+    IF v_dem = 0 THEN
+        RAISE_APPLICATION_ERROR(-20001,
+            'MaSP [' || :NEW.MaSP || '] khong ton tai trong SanPham');
+    END IF;
+
+    IF :NEW.SoLuongN <= 0 OR :NEW.DonGiaN <= 0 THEN
+        RAISE_APPLICATION_ERROR(-20002,
+            'SoLuongN va DonGiaN phai lon hon 0');
+    END IF;
+
+    UPDATE SanPham
+    SET    SoLuong = SoLuong + :NEW.SoLuongN
+    WHERE  MaSP = :NEW.MaSP;
+END trg_Nhap;
+/
+
+INSERT INTO Nhap VALUES ('HDN001', 'SP01', 20, 32000000);
+INSERT INTO Nhap VALUES ('HDN001', 'SP02', 10, 33000000);
+INSERT INTO Nhap VALUES ('HDN002', 'SP03', 15, 25000000);
+INSERT INTO Nhap VALUES ('HDN002', 'SP04', 12, 21000000);
+COMMIT;
+
+CREATE OR REPLACE TRIGGER trg_Xuat
+BEFORE INSERT ON Xuat
+FOR EACH ROW
+DECLARE
+    v_dem     NUMBER := 0;
+    v_soluong SanPham.SoLuong%TYPE;
+BEGIN
+    SELECT COUNT(*) INTO v_dem
+    FROM   SanPham
+    WHERE  MaSP = :NEW.MaSP;
+
+    IF v_dem = 0 THEN
+        RAISE_APPLICATION_ERROR(-20003,
+            'MaSP [' || :NEW.MaSP || '] khong ton tai trong SanPham');
+    END IF;
+
+    SELECT SoLuong INTO v_soluong
+    FROM   SanPham
+    WHERE  MaSP = :NEW.MaSP;
+
+    IF :NEW.SoLuongX > v_soluong THEN
+        RAISE_APPLICATION_ERROR(-20004,
+            'So luong xuat (' || :NEW.SoLuongX ||
+            ') vuot qua ton kho (' || v_soluong || ')');
+    END IF;
+
+    UPDATE SanPham
+    SET    SoLuong = SoLuong - :NEW.SoLuongX
+    WHERE  MaSP = :NEW.MaSP;
+END trg_Xuat;
+/
+
+INSERT INTO Xuat VALUES ('HDX001', 'SP01', 5);
+INSERT INTO Xuat VALUES ('HDX001', 'SP02', 3);
+COMMIT;
+
+CREATE OR REPLACE TRIGGER trg_XoaXuat
+AFTER DELETE ON Xuat
+FOR EACH ROW
+BEGIN
+    UPDATE SanPham
+    SET    SoLuong = SoLuong + :OLD.SoLuongX
+    WHERE  MaSP = :OLD.MaSP;
+END trg_XoaXuat;
+/
+
+DELETE FROM Xuat WHERE SoHDX = 'HDX001' AND MaSP = 'SP01';
+COMMIT;
+
+CREATE OR REPLACE PACKAGE pkg_xuat_state AS
+    g_row_count NUMBER := 0;
+END pkg_xuat_state;
+/
+
+CREATE OR REPLACE TRIGGER trg_CapNhatXuat
+FOR UPDATE ON Xuat
+COMPOUND TRIGGER
+
+    v_soluong_sp SanPham.SoLuong%TYPE;
+    v_chenh_lech NUMBER;
+
+    BEFORE STATEMENT IS
+    BEGIN
+        pkg_xuat_state.g_row_count := 0;
+    END BEFORE STATEMENT;
+
+    BEFORE EACH ROW IS
+    BEGIN
+        pkg_xuat_state.g_row_count := pkg_xuat_state.g_row_count + 1;
+
+        IF pkg_xuat_state.g_row_count > 1 THEN
+            RAISE_APPLICATION_ERROR(-20005,
+                'Chi duoc cap nhat 1 ban ghi Xuat moi lan');
+        END IF;
+
+        IF :NEW.SoLuongX != :OLD.SoLuongX THEN
+            v_chenh_lech := :NEW.SoLuongX - :OLD.SoLuongX;
+
+            SELECT SoLuong INTO v_soluong_sp
+            FROM   SanPham
+            WHERE  MaSP = :NEW.MaSP;
+
+            IF v_soluong_sp < v_chenh_lech THEN
+                RAISE_APPLICATION_ERROR(-20006,
+                    'Ton kho (' || v_soluong_sp ||
+                    ') khong du bu chenh lech (' || v_chenh_lech || ')');
+            END IF;
+
+            UPDATE SanPham
+            SET    SoLuong = SoLuong - v_chenh_lech
+            WHERE  MaSP = :NEW.MaSP;
+        END IF;
+    END BEFORE EACH ROW;
+
+END trg_CapNhatXuat;
+/
+
+UPDATE Xuat SET SoLuongX = 8 WHERE SoHDX = 'HDX001' AND MaSP = 'SP02';
+COMMIT;
+
+CREATE OR REPLACE PACKAGE pkg_nhap_state AS
+    g_row_count NUMBER := 0;
+END pkg_nhap_state;
+/
+
+CREATE OR REPLACE TRIGGER trg_CapNhatNhap
+FOR UPDATE ON Nhap
+COMPOUND TRIGGER
+
+    v_chenh_lech NUMBER;
+
+    BEFORE STATEMENT IS
+    BEGIN
+        pkg_nhap_state.g_row_count := 0;
+    END BEFORE STATEMENT;
+
+    BEFORE EACH ROW IS
+    BEGIN
+        pkg_nhap_state.g_row_count := pkg_nhap_state.g_row_count + 1;
+
+        IF pkg_nhap_state.g_row_count > 1 THEN
+            RAISE_APPLICATION_ERROR(-20007,
+                'Chi duoc cap nhat 1 ban ghi Nhap moi lan');
+        END IF;
+
+        IF :NEW.SoLuongN != :OLD.SoLuongN THEN
+            v_chenh_lech := :NEW.SoLuongN - :OLD.SoLuongN;
+
+            UPDATE SanPham
+            SET    SoLuong = SoLuong + v_chenh_lech
+            WHERE  MaSP = :NEW.MaSP;
+        END IF;
+    END BEFORE EACH ROW;
+
+END trg_CapNhatNhap;
+/
+
+UPDATE Nhap SET SoLuongN = 25 WHERE SoHDN = 'HDN001' AND MaSP = 'SP01';
+COMMIT;
+
+CREATE OR REPLACE TRIGGER trg_XoaNhap
+AFTER DELETE ON Nhap
+FOR EACH ROW
+BEGIN
+    UPDATE SanPham
+    SET    SoLuong = SoLuong - :OLD.SoLuongN
+    WHERE  MaSP = :OLD.MaSP;
+END trg_XoaNhap;
+/
+
+DELETE FROM Nhap WHERE SoHDN = 'HDN002' AND MaSP = 'SP04';
+COMMIT;
+
+BEGIN EXECUTE IMMEDIATE 'DROP SEQUENCE SEQ_HD';          EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP SEQUENCE SEQ_LS';          EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP VIEW vw_PhongTrong';       EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE ChiPhiPhuThu CASCADE CONSTRAINTS'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE LichSuPhong  CASCADE CONSTRAINTS'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE HoaDon       CASCADE CONSTRAINTS'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE KhachHang    CASCADE CONSTRAINTS'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE Phong        CASCADE CONSTRAINTS'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+
+CREATE TABLE Phong (
+    MaPhong      VARCHAR2(10) CONSTRAINT pk_phong PRIMARY KEY,
+    LoaiPhong    VARCHAR2(30),
+    TrangThai    VARCHAR2(10) DEFAULT 'TRONG'
+                 CONSTRAINT ck_phong_tt CHECK (TrangThai IN ('TRONG','DA_THUE','BAO_TRI')),
+    GiaTheoGio   NUMBER(15,2),
+    GiaTheoNgay  NUMBER(15,2),
+    SoNguoiToiDa NUMBER(3)
+);
+
+CREATE TABLE KhachHang (
+    MaKH     VARCHAR2(10) CONSTRAINT pk_khachhang PRIMARY KEY,
+    HoTen    VARCHAR2(50),
+    CCCD     VARCHAR2(12),
+    SoDT     VARCHAR2(15),
+    Email    VARCHAR2(50),
+    QuocTich VARCHAR2(30)
+);
+
+CREATE SEQUENCE SEQ_HD START WITH 1 INCREMENT BY 1;
+
+CREATE TABLE HoaDon (
+    MaHD      VARCHAR2(10) CONSTRAINT pk_hoadon PRIMARY KEY,
+    MaKH      VARCHAR2(10) REFERENCES KhachHang(MaKH),
+    MaPhong   VARCHAR2(10) REFERENCES Phong(MaPhong),
+    NgayNhan  DATE,
+    NgayTra   DATE,
+    SoNguoi   NUMBER(3),
+    TongTien  NUMBER(15,2),
+    TrangThai VARCHAR2(10) DEFAULT 'CHO_NHAN'
+              CONSTRAINT ck_hd_tt CHECK (TrangThai IN ('CHO_NHAN','DANG_O','DA_TRA','HUY'))
+);
+
+CREATE TABLE ChiPhiPhuThu (
+    MaCP     VARCHAR2(10) CONSTRAINT pk_chiphi PRIMARY KEY,
+    MaHD     VARCHAR2(10) REFERENCES HoaDon(MaHD),
+    MoTa     VARCHAR2(100),
+    SoTien   NUMBER(15,2),
+    ThoiGian DATE DEFAULT SYSDATE
+);
+
+CREATE TABLE LichSuPhong (
+    MaLS     VARCHAR2(10) CONSTRAINT pk_lichsu PRIMARY KEY,
+    MaPhong  VARCHAR2(10) REFERENCES Phong(MaPhong),
+    MaHD     VARCHAR2(10) REFERENCES HoaDon(MaHD),
+    NgayNhan DATE,
+    NgayTra  DATE,
+    GhiChu   VARCHAR2(200)
+);
+
+CREATE SEQUENCE SEQ_LS START WITH 1 INCREMENT BY 1;
+
+INSERT INTO Phong VALUES ('P001', 'VIP',     'TRONG',    500000, 2000000, 2);
+INSERT INTO Phong VALUES ('P002', 'Thuong',  'TRONG',    200000,  800000, 3);
+INSERT INTO Phong VALUES ('P003', 'Suite',   'TRONG',    800000, 3500000, 4);
+INSERT INTO Phong VALUES ('P004', 'Thuong',  'BAO_TRI',  200000,  800000, 2);
+
+INSERT INTO KhachHang VALUES ('KH01', 'Nguyen Van A', '001234567890', '0901111111', 'nva@mail.com', 'Viet Nam');
+INSERT INTO KhachHang VALUES ('KH02', 'Tran Thi B',   '001234567891', '0902222222', 'ttb@mail.com', 'Viet Nam');
+INSERT INTO KhachHang VALUES ('KH03', 'John Smith',   '123456789',    '0903333333', 'js@mail.com',  'USA');
+
+COMMIT;
+
+CREATE OR REPLACE TRIGGER trg_DatPhong
+BEFORE INSERT ON HoaDon
+FOR EACH ROW
+DECLARE
+    v_dem_kh      NUMBER := 0;
+    v_dem_phong   NUMBER := 0;
+    v_trangthai   Phong.TrangThai%TYPE;
+    v_songuoitd   Phong.SoNguoiToiDa%TYPE;
+    v_giatheongay Phong.GiaTheoNgay%TYPE;
+    v_songay      NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_dem_kh
+    FROM   KhachHang WHERE MaKH = :NEW.MaKH;
+
+    IF v_dem_kh = 0 THEN
+        RAISE_APPLICATION_ERROR(-20010,
+            'MaKH [' || :NEW.MaKH || '] khong ton tai');
+    END IF;
+
+    SELECT COUNT(*) INTO v_dem_phong
+    FROM   Phong WHERE MaPhong = :NEW.MaPhong;
+
+    IF v_dem_phong = 0 THEN
+        RAISE_APPLICATION_ERROR(-20011,
+            'MaPhong [' || :NEW.MaPhong || '] khong ton tai');
+    END IF;
+
+    SELECT TrangThai, SoNguoiToiDa, GiaTheoNgay
+    INTO   v_trangthai, v_songuoitd, v_giatheongay
+    FROM   Phong WHERE MaPhong = :NEW.MaPhong;
+
+    IF v_trangthai != 'TRONG' THEN
+        RAISE_APPLICATION_ERROR(-20012,
+            'Phong [' || :NEW.MaPhong || '] khong trong - trang thai: ' || v_trangthai);
+    END IF;
+
+    IF :NEW.SoNguoi > v_songuoitd THEN
+        RAISE_APPLICATION_ERROR(-20013,
+            'So nguoi (' || :NEW.SoNguoi ||
+            ') vuot so nguoi toi da (' || v_songuoitd || ')');
+    END IF;
+
+    IF :NEW.NgayNhan >= :NEW.NgayTra THEN
+        RAISE_APPLICATION_ERROR(-20014, 'NgayNhan phai truoc NgayTra');
+    END IF;
+
+    IF TRUNC(:NEW.NgayNhan) < TRUNC(SYSDATE) THEN
+        RAISE_APPLICATION_ERROR(-20015, 'NgayNhan khong duoc trong qua khu');
+    END IF;
+
+    v_songay      := TRUNC(:NEW.NgayTra) - TRUNC(:NEW.NgayNhan);
+    :NEW.TongTien := v_songay * v_giatheongay;
+
+    UPDATE Phong SET TrangThai = 'DA_THUE' WHERE MaPhong = :NEW.MaPhong;
+END trg_DatPhong;
+/
+
+CREATE OR REPLACE TRIGGER trg_CapNhatTrangThaiHD
+BEFORE UPDATE OF TrangThai ON HoaDon
+FOR EACH ROW
+DECLARE
+    v_mals VARCHAR2(20);
+BEGIN
+    IF :OLD.TrangThai = 'CHO_NHAN' THEN
+        IF :NEW.TrangThai NOT IN ('DANG_O','HUY') THEN
+            RAISE_APPLICATION_ERROR(-20020,
+                'CHO_NHAN chi chuyen duoc sang DANG_O hoac HUY');
+        END IF;
+
+    ELSIF :OLD.TrangThai = 'DANG_O' THEN
+        IF :NEW.TrangThai != 'DA_TRA' THEN
+            RAISE_APPLICATION_ERROR(-20021,
+                'DANG_O chi chuyen duoc sang DA_TRA');
+        END IF;
+
+    ELSIF :OLD.TrangThai IN ('DA_TRA','HUY') THEN
+        RAISE_APPLICATION_ERROR(-20022,
+            'Trang thai [' || :OLD.TrangThai || '] khong the thay doi');
+
+    ELSE
+        RAISE_APPLICATION_ERROR(-20023,
+            'Trang thai khong hop le: ' || :OLD.TrangThai);
+    END IF;
+
+    IF :NEW.TrangThai = 'DA_TRA' THEN
+        UPDATE Phong SET TrangThai = 'TRONG'
+        WHERE  MaPhong = :OLD.MaPhong;
+
+        v_mals := 'LS' || TO_CHAR(SEQ_LS.NEXTVAL,'FM0000');
+        INSERT INTO LichSuPhong (MaLS, MaPhong, MaHD, NgayNhan, NgayTra, GhiChu)
+        VALUES (v_mals, :OLD.MaPhong, :OLD.MaHD,
+                :OLD.NgayNhan, SYSDATE,
+                'Khach tra phong - HD: ' || :OLD.MaHD);
+
+    ELSIF :NEW.TrangThai = 'HUY' THEN
+        UPDATE Phong SET TrangThai = 'TRONG'
+        WHERE  MaPhong = :OLD.MaPhong;
+    END IF;
+END trg_CapNhatTrangThaiHD;
+/
+
+CREATE OR REPLACE PACKAGE pkg_chiphi_state AS
+    TYPE t_mahd_tab IS TABLE OF HoaDon.MaHD%TYPE INDEX BY PLS_INTEGER;
+    g_mahd_list t_mahd_tab;
+    g_idx       PLS_INTEGER := 0;
+    g_row_count PLS_INTEGER := 0;
+END pkg_chiphi_state;
+/
+
+CREATE OR REPLACE TRIGGER trg_SuaChiPhi
+FOR INSERT OR UPDATE ON ChiPhiPhuThu
+COMPOUND TRIGGER
+
+    BEFORE STATEMENT IS
+    BEGIN
+        pkg_chiphi_state.g_row_count := 0;
+        pkg_chiphi_state.g_idx       := 0;
+        pkg_chiphi_state.g_mahd_list.DELETE;
+    END BEFORE STATEMENT;
+
+    BEFORE EACH ROW IS
+    BEGIN
+        pkg_chiphi_state.g_row_count := pkg_chiphi_state.g_row_count + 1;
+
+        IF pkg_chiphi_state.g_row_count > 5 THEN
+            RAISE_APPLICATION_ERROR(-20030,
+                'Chi duoc INSERT/UPDATE toi da 5 chi phi trong 1 lenh DML');
+        END IF;
+
+        IF :NEW.SoTien <= 0 OR :NEW.SoTien >= 50000000 THEN
+            RAISE_APPLICATION_ERROR(-20031,
+                'SoTien phai > 0 va < 50,000,000 dong');
+        END IF;
+
+        pkg_chiphi_state.g_idx := pkg_chiphi_state.g_idx + 1;
+        pkg_chiphi_state.g_mahd_list(pkg_chiphi_state.g_idx) := :NEW.MaHD;
+    END BEFORE EACH ROW;
+
+    AFTER STATEMENT IS
+        v_tongtien_goc HoaDon.TongTien%TYPE;
+        v_tongchiphi   NUMBER;
+        v_mahd         HoaDon.MaHD%TYPE;
+    BEGIN
+        FOR i IN 1 .. pkg_chiphi_state.g_idx LOOP
+            v_mahd := pkg_chiphi_state.g_mahd_list(i);
+
+            SELECT TongTien INTO v_tongtien_goc
+            FROM   HoaDon WHERE MaHD = v_mahd;
+
+            SELECT NVL(SUM(SoTien), 0) INTO v_tongchiphi
+            FROM   ChiPhiPhuThu WHERE MaHD = v_mahd;
+
+            UPDATE HoaDon
+            SET    TongTien = v_tongtien_goc + v_tongchiphi
+            WHERE  MaHD = v_mahd;
+        END LOOP;
+    END AFTER STATEMENT;
+
+END trg_SuaChiPhi;
+/
+
+CREATE OR REPLACE VIEW vw_PhongTrong AS
+SELECT MaPhong, LoaiPhong, TrangThai,
+       GiaTheoGio, GiaTheoNgay, SoNguoiToiDa
+FROM   Phong
+WHERE  TrangThai = 'TRONG';
+
+CREATE OR REPLACE TRIGGER trg_vwPhongTrong_ins
+INSTEAD OF INSERT ON vw_PhongTrong
+FOR EACH ROW
+DECLARE
+    v_makh KhachHang.MaKH%TYPE;
+    v_mahd HoaDon.MaHD%TYPE;
+BEGIN
+    SELECT MaKH INTO v_makh FROM KhachHang WHERE ROWNUM = 1;
+
+    v_mahd := 'HD' || TO_CHAR(SEQ_HD.NEXTVAL,'FM0000');
+
+    INSERT INTO HoaDon (MaHD, MaKH, MaPhong, NgayNhan, NgayTra,
+                        SoNguoi, TongTien, TrangThai)
+    VALUES (v_mahd, v_makh, :NEW.MaPhong,
+            TRUNC(SYSDATE), TRUNC(SYSDATE) + 1,
+            1, 1 * :NEW.GiaTheoNgay, 'CHO_NHAN');
+
+    DBMS_OUTPUT.PUT_LINE('Da tao HoaDon: ' || v_mahd ||
+        ' - Phong: ' || :NEW.MaPhong);
+END trg_vwPhongTrong_ins;
+/
+
+SET SERVEROUTPUT ON;
+
+INSERT INTO HoaDon (MaHD, MaKH, MaPhong, NgayNhan, NgayTra, SoNguoi, TrangThai)
+VALUES ('HD0001', 'KH01', 'P001', TRUNC(SYSDATE), TRUNC(SYSDATE)+3, 2, 'CHO_NHAN');
+
+INSERT INTO HoaDon (MaHD, MaKH, MaPhong, NgayNhan, NgayTra, SoNguoi, TrangThai)
+VALUES ('HD0002', 'KH02', 'P002', TRUNC(SYSDATE), TRUNC(SYSDATE)+2, 2, 'CHO_NHAN');
+COMMIT;
+
+UPDATE HoaDon SET TrangThai = 'DANG_O' WHERE MaHD = 'HD0001';
+
+UPDATE HoaDon SET TrangThai = 'DA_TRA' WHERE MaHD = 'HD0001';
+
+UPDATE HoaDon SET TrangThai = 'HUY' WHERE MaHD = 'HD0002';
+
+UPDATE HoaDon SET TrangThai = 'DANG_O' WHERE MaHD = 'HD0001';
+
+INSERT INTO HoaDon (MaHD, MaKH, MaPhong, NgayNhan, NgayTra, SoNguoi, TrangThai)
+VALUES ('HD0003', 'KH03', 'P003', TRUNC(SYSDATE), TRUNC(SYSDATE)+2, 2, 'CHO_NHAN');
+COMMIT;
+
+INSERT INTO ChiPhiPhuThu VALUES ('CP001', 'HD0003', 'An sang', 150000, SYSDATE);
+INSERT INTO ChiPhiPhuThu VALUES ('CP002', 'HD0003', 'Giat ui',  80000, SYSDATE);
+COMMIT;
+
+SELECT MaHD, TongTien FROM HoaDon WHERE MaHD = 'HD0003';
+
+SELECT * FROM vw_PhongTrong;
+INSERT INTO vw_PhongTrong
+    SELECT MaPhong, LoaiPhong, TrangThai, GiaTheoGio, GiaTheoNgay, SoNguoiToiDa
+    FROM   vw_PhongTrong WHERE MaPhong = 'P002';
+
+SELECT * FROM HoaDon;
+SELECT * FROM Phong;
+SELECT * FROM LichSuPhong;
